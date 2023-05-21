@@ -30,6 +30,7 @@ async function run() {
     //start project
     const serviceCollections = client.db("re-zanToys").collection("sevices");
     const blogsCollections = client.db("re-zanToys").collection("blogs");
+    const galleryCollections = client.db("re-zanToys").collection("gallery");
 
     //get services data
     app.get("/services", async (req, res) => {
@@ -37,6 +38,11 @@ async function run() {
       res.send(result);
     });
 
+    //get gallery data
+    app.get("/gallery", async (req, res) => {
+      const result = await galleryCollections.find().toArray();
+      res.send(result);
+    });
     //get blog datas
     app.get("/blogs", async (req, res) => {
       const result = await blogsCollections.find().sort({ date: -1 }).toArray();
