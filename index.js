@@ -52,10 +52,25 @@ async function run() {
     });
 
     //toys part start
+    //get data
+    app.get("/toys", async (req, res) => {
+      // const options = {
+      //   projection: {
+      //     seller_name: 1,
+      //     toy_name: 1,
+      //     Sub_category: 1,
+      //     toy_price: 1,
+      //     quantity: 1,
+      //   },
+      // };
+      const result = await toysCollections.find().limit(20).toArray();
+      res.send(result);
+    });
+
+    //insert data
     app.post("/toys", async (req, res) => {
       const body = req.body;
       const result = await toysCollections.insertOne(body);
-      console.log(result);
       res.send(result);
     });
     // Send a ping to confirm a successful connection
