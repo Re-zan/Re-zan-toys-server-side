@@ -25,12 +25,14 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     //start project
+    //collections
     const serviceCollections = client.db("re-zanToys").collection("sevices");
     const blogsCollections = client.db("re-zanToys").collection("blogs");
     const galleryCollections = client.db("re-zanToys").collection("gallery");
+    const toysCollections = client.db("re-zanToys").collection("toys");
 
     //get services data
     app.get("/services", async (req, res) => {
@@ -46,6 +48,14 @@ async function run() {
     //get blog datas
     app.get("/blogs", async (req, res) => {
       const result = await blogsCollections.find().sort({ date: -1 }).toArray();
+      res.send(result);
+    });
+
+    //toys part start
+    app.post("/toys", async (req, res) => {
+      const body = req.body;
+      const result = await toysCollections.insertOne(body);
+      console.log(result);
       res.send(result);
     });
     // Send a ping to confirm a successful connection
