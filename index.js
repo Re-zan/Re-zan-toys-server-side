@@ -36,9 +36,9 @@ async function run() {
 
     //serarch
 
-    const indexKey = { toy_name: 1 };
-    const indexkeyName = { name: "searchToyName" };
-    const result = await toysCollections.createIndex(indexKey, indexkeyName);
+    // const indexKey = { toy_name: 1 };
+    // const indexkeyName = { name: "searchToyName" };
+    // const result = await toysCollections.createIndex(indexKey, indexkeyName);
 
     //get services data
     app.get("/services", async (req, res) => {
@@ -76,11 +76,21 @@ async function run() {
       res.send(result);
     });
 
-    //user toys data
+    //user toys data ascending orders based on the price
     app.get("/my-toys/:email", async (req, res) => {
+      const result = await toysCollections
+        .find({ seller_email: req.params.email })
+        .sort({ toy_price: 1 })
+        .toArray();
+      res.send(result);
+    });
+
+    //user toys data ascending orders based on the price
+    app.get("/my-toys/des/:email", async (req, res) => {
       console.log(req.params.email);
       const result = await toysCollections
         .find({ seller_email: req.params.email })
+        .sort({ toy_price: -1 })
         .toArray();
       res.send(result);
     });
@@ -89,6 +99,36 @@ async function run() {
     app.post("/toys", async (req, res) => {
       const body = req.body;
       const result = await toysCollections.insertOne(body);
+      res.send(result);
+    });
+
+    //update data
+
+    app.put("/my-toys/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const toys = req.body;
+      const updateDoc = {
+        $set: {
+          toy_price: toys.toy_price,
+          quantity: toys.quantity,
+          description: toys.description,
+        },
+      };
+      const result = await toysCollections.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    //delete data
+    app.delete("/toys/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await toysCollections.deleteOne(query);
       res.send(result);
     });
 
