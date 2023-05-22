@@ -34,6 +34,12 @@ async function run() {
     const galleryCollections = client.db("re-zanToys").collection("gallery");
     const toysCollections = client.db("re-zanToys").collection("toys");
 
+    //serarch
+
+    const indexKey = { toy_name: 1 };
+    const indexkeyName = { name: "searchToyName" };
+    const result = await toysCollections.createIndex(indexKey, indexkeyName);
+
     //get services data
     app.get("/services", async (req, res) => {
       const result = await serviceCollections.find().toArray();
@@ -54,16 +60,11 @@ async function run() {
     //toys part start
     //get data
     app.get("/toys", async (req, res) => {
-      // const options = {
-      //   projection: {
-      //     seller_name: 1,
-      //     toy_name: 1,
-      //     Sub_category: 1,
-      //     toy_price: 1,
-      //     quantity: 1,
-      //   },
-      // };
-      const result = await toysCollections.find().limit(20).toArray();
+      const result = await toysCollections
+        .find()
+        .sort({ _id: -1 })
+        .limit(20)
+        .toArray();
       res.send(result);
     });
 
@@ -74,10 +75,31 @@ async function run() {
       const result = await toysCollections.findOne(query);
       res.send(result);
     });
+
+    //user toys data
+    app.get("/my-toys/:email", async (req, res) => {
+      console.log(req.params.email);
+      const result = await toysCollections
+        .find({ seller_email: req.params.email })
+        .toArray();
+      res.send(result);
+    });
+
     //insert data
     app.post("/toys", async (req, res) => {
       const body = req.body;
       const result = await toysCollections.insertOne(body);
+      res.send(result);
+    });
+
+    //search option
+    app.get("/toys/searchBy/:text", async (req, res) => {
+      const text = req.params.text;
+      const result = await toysCollections
+        .find({
+          toy_name: { $regex: text, $options: "i" },
+        })
+        .toArray();
       res.send(result);
     });
     // Send a ping to confirm a successful connection
